@@ -307,9 +307,6 @@ export function AuthPage({
           </span>
         </button>
         <div className="auth-side-content">
-          <div className="auth-big-pet">
-            🐱<span>✦</span>
-          </div>
           <h2>
             Semua urusan kuliah,
             <br />

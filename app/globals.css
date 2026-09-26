@@ -3515,18 +3515,6 @@ input[type="checkbox"] {
   left: -100px;
   z-index: -1;
 }
-.auth-big-pet {
-  font-size: 110px;
-  position: relative;
-  line-height: 1;
-}
-.auth-big-pet span {
-  font-size: 35px;
-  color: #eedf9d;
-  position: absolute;
-  top: 0;
-  left: 120px;
-}
 .auth-side h2 {
   color: white;
   font-size: 35px;

@@ -1519,9 +1519,6 @@ textarea::placeholder {
 .auth-side-content:before {
   border-color: rgba(217, 227, 255, 0.14);
 }
-.auth-big-pet span {
-  color: #c0ceff;
-}
 .auth-side h2 {
   color: #fff;
   font-size: clamp(32px, 3.1vw, 48px);
