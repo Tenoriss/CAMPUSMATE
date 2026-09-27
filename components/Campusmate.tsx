@@ -34,6 +34,16 @@ import { Provider, useApp } from "./Provider";
 import { Button, Modal, PetDisplay } from "./UI";
 import { universities } from "@/lib/directory";
 import {
+  applyTheme,
+  isThemePref,
+  nextThemePref,
+  readThemePref,
+  themeLabels,
+  writeThemePref,
+  type ResolvedTheme,
+  type ThemePref,
+} from "@/lib/theme";
+import {
   Dashboard,
   SchedulePage,
   TasksPage,
@@ -79,7 +89,9 @@ function Inner() {
   const [menu, setMenu] = useState(false),
     [searchOpen, setSearchOpen] = useState(false),
     [query, setQuery] = useState(""),
-    [academicOpen, setAcademicOpen] = useState(true);
+    [academicOpen, setAcademicOpen] = useState(true),
+    [themePref, setThemePref] = useState<ThemePref>("system"),
+    [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("light");
   const go = (p: string) => {
     router.push(p);
     setMenu(false);
@@ -98,19 +110,36 @@ function Inner() {
     return () => window.removeEventListener("keydown", fn);
   }, []);
   useEffect(() => {
-    if (!data) return;
+    // The account preference wins while signed in; signed-out visitors keep
+    // the preference stored for this browser.
+    setThemePref(
+      data
+        ? isThemePref(data.settings.theme)
+          ? data.settings.theme
+          : "system"
+        : readThemePref(),
+    );
+  }, [data?.settings.theme, !!data]);
+  useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      const pref = data.settings.theme;
-      document.documentElement.dataset.theme =
-        pref === "dark" || (pref === "system" && media.matches)
-          ? "dark"
-          : "light";
-    };
+    const apply = () =>
+      setResolvedTheme(
+        applyTheme(themePref, { systemPrefersDark: media.matches }),
+      );
     apply();
     media.addEventListener("change", apply);
     return () => media.removeEventListener("change", apply);
-  }, [data?.settings.theme, !!data]);
+  }, [themePref]);
+  const nextPref = nextThemePref(themePref);
+  const cycleTheme = () => {
+    setThemePref(nextPref);
+    writeThemePref(nextPref);
+    if (data)
+      update((d) => ({
+        ...d,
+        settings: { ...d.settings, theme: nextPref },
+      }));
+  };
   useEffect(() => {
     if (!ready) return;
     if (data && !data.profile.onboarded && pathname !== "/onboarding")
@@ -360,24 +389,16 @@ function Inner() {
             </button>
             <button
               className="icon-btn theme-toggle"
-              aria-label="Ganti tema"
-              onClick={() =>
-                update((d) => ({
-                  ...d,
-                  settings: {
-                    ...d.settings,
-                    theme:
-                      document.documentElement.dataset.theme === "dark"
-                        ? "light"
-                        : "dark",
-                  },
-                }))
-              }
+              aria-label={`Tema ${themeLabels[themePref].toLowerCase()}. Ganti ke ${themeLabels[nextPref].toLowerCase()}`}
+              title={`Tema: ${themeLabels[themePref]}`}
+              onClick={cycleTheme}
             >
-              {document.documentElement.dataset.theme === "dark" ? (
-                <Sun size={20} />
-              ) : (
+              {themePref === "system" ? (
+                <SunMoon size={20} />
+              ) : resolvedTheme === "dark" ? (
                 <Moon size={20} />
+              ) : (
+                <Sun size={20} />
               )}
             </button>
             <button

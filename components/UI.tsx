@@ -1,7 +1,25 @@
 "use client";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Plus, Search, Inbox } from "lucide-react";
+import {
+  X,
+  ArrowRight,
+  Plus,
+  Search,
+  Inbox,
+  Moon,
+  Sun,
+  SunMoon,
+} from "lucide-react";
+import {
+  applyTheme,
+  nextThemePref,
+  readThemePref,
+  themeLabels,
+  writeThemePref,
+  type ResolvedTheme,
+  type ThemePref,
+} from "@/lib/theme";
 import { Pet, PetSpecies } from "@/lib/types";
 
 /** Original local sprites: GIF when motion is allowed, still PNG otherwise. */
@@ -9,10 +27,13 @@ export function PetSprite({
   species,
   name,
   decorative = false,
+  priority = false,
 }: {
   species: PetSpecies;
   name?: string;
   decorative?: boolean;
+  /** Above-the-fold placements load the GIF straight away instead of lazily. */
+  priority?: boolean;
 }) {
   const slug = species.toLowerCase();
   return (
@@ -25,7 +46,8 @@ export function PetSprite({
         src={`/pets/${slug}.gif`}
         width={180}
         height={180}
-        loading="lazy"
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "auto"}
         decoding="async"
         alt={decorative ? "" : `${name || species}, teman belajar ${species}`}
       />
@@ -33,7 +55,13 @@ export function PetSprite({
   );
 }
 
-export function PetDisplay({ pet }: { pet: Pet | null }) {
+export function PetDisplay({
+  pet,
+  priority = false,
+}: {
+  pet: Pet | null;
+  priority?: boolean;
+}) {
   const accessory: Record<string, string> = {
     "Graduation cap": "🎓",
     Glasses: "👓",
@@ -44,7 +72,11 @@ export function PetDisplay({ pet }: { pet: Pet | null }) {
   };
   return (
     <span className="pet-display">
-      <PetSprite species={pet?.species || "Cat"} name={pet?.name} />
+      <PetSprite
+        species={pet?.species || "Cat"}
+        name={pet?.name}
+        priority={priority}
+      />
       {pet?.equipped && (
         <i aria-label={pet.equipped}>{accessory[pet.equipped]}</i>
       )}
@@ -305,6 +337,47 @@ export function ArrowLink({
     <button className="text-link" onClick={onClick}>
       {children}
       <ArrowRight size={15} />
+    </button>
+  );
+}
+
+/**
+ * Standalone light/dark/system switch for the public pages. The workspace has
+ * its own toggle that also writes the choice back to the account settings.
+ */
+export function ThemeToggle() {
+  const [pref, setPref] = useState<ThemePref>("system");
+  const [resolved, setResolved] = useState<ResolvedTheme>("light");
+  useEffect(() => {
+    setPref(readThemePref());
+  }, []);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () =>
+      setResolved(applyTheme(pref, { systemPrefersDark: media.matches }));
+    apply();
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, [pref]);
+  const next = nextThemePref(pref);
+  return (
+    <button
+      type="button"
+      className="icon-btn theme-toggle"
+      aria-label={`Tema ${themeLabels[pref].toLowerCase()}. Ganti ke ${themeLabels[next].toLowerCase()}`}
+      title={`Tema: ${themeLabels[pref]}`}
+      onClick={() => {
+        setPref(next);
+        writeThemePref(next);
+      }}
+    >
+      {pref === "system" ? (
+        <SunMoon size={19} />
+      ) : resolved === "dark" ? (
+        <Moon size={19} />
+      ) : (
+        <Sun size={19} />
+      )}
     </button>
   );
 }

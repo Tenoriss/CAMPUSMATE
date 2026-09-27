@@ -50,6 +50,7 @@ import {
   localDate,
 } from "@/lib/logic";
 import { provinces, universities } from "@/lib/directory";
+import { writeThemePref } from "@/lib/theme";
 type Go = { go: (s: string) => void };
 export function ProfilePage({ go }: Go) {
   const { data, update, notify } = useApp(),
@@ -436,12 +437,14 @@ export function SettingsPage({ go }: Go) {
                 <button
                   key={x.key}
                   className={d.settings.theme === x.key ? "selected" : ""}
-                  onClick={() =>
+                  aria-pressed={d.settings.theme === x.key}
+                  onClick={() => {
+                    writeThemePref(x.key);
                     update((y) => ({
                       ...y,
                       settings: { ...y.settings, theme: x.key },
-                    }))
-                  }
+                    }));
+                  }}
                 >
                   <x.icon size={20} />
                   <span>{x.label}</span>

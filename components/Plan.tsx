@@ -660,7 +660,7 @@ export function ProjectsPage({ go }: Go) {
                 download={project.attachment.name}
               >
                 <Paperclip size={16} />
-                {project.attachment.name}
+                <span className="file-name">{project.attachment.name}</span>
               </a>
             )}
           </div>
