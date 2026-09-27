@@ -509,6 +509,7 @@ input[type="checkbox"] {
   display: flex;
   align-items: center;
   gap: 1px;
+  flex-shrink: 0;
 }
 .row-actions button {
   border: none;
@@ -519,6 +520,7 @@ input[type="checkbox"] {
   display: grid;
   place-items: center;
   border-radius: 8px;
+  flex-shrink: 0;
 }
 .row-actions button:hover {
   color: var(--primary);
@@ -1588,6 +1590,7 @@ input[type="checkbox"] {
 }
 .schedule-date {
   min-width: 90px;
+  flex-shrink: 0;
   text-align: center;
   border-right: 2px solid #b9adf4;
   padding-right: 17px;
@@ -1606,9 +1609,11 @@ input[type="checkbox"] {
 }
 .schedule-info {
   flex: 1;
+  min-width: 0;
 }
 .schedule-info h3 {
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 .schedule-info p,
 .schedule-info > span {
@@ -1800,9 +1805,15 @@ input[type="checkbox"] {
   align-items: center;
   gap: 9px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 .task-main h3 {
   font-size: 12px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.task-main > div:first-child > .pill {
+  flex-shrink: 0;
 }
 .task-done h3 {
   text-decoration: line-through;
@@ -1822,6 +1833,7 @@ input[type="checkbox"] {
   align-items: center;
   gap: 13px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 .task-meta > span:not(.pill),
 .task-meta a {
@@ -1830,9 +1842,20 @@ input[type="checkbox"] {
   gap: 4px;
   color: var(--muted);
   font-size: 10px;
+  min-width: 0;
 }
 .task-meta a {
   color: var(--primary);
+  max-width: 100%;
+}
+.task-meta a .file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.task-meta > .pill {
+  flex-shrink: 0;
 }
 /* Projects */
 .project-overview {
@@ -1928,6 +1951,9 @@ input[type="checkbox"] {
   border-radius: 7px;
   font-size: 11px;
   font-weight: 700;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .chip-list button {
   border: 0;
@@ -1935,6 +1961,7 @@ input[type="checkbox"] {
   color: inherit;
   font-size: 16px;
   line-height: 1;
+  flex-shrink: 0;
 }
 .input-with-action {
   display: flex;
@@ -1986,6 +2013,9 @@ input[type="checkbox"] {
   border-radius: 9px;
   padding: 5px 9px 5px 5px;
   font-size: 11px;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .project-task-list > div {
   display: flex;
@@ -1996,6 +2026,7 @@ input[type="checkbox"] {
 }
 .project-task-list > div > span {
   flex: 1;
+  min-width: 0;
 }
 .project-task-list strong,
 .project-task-list small {
@@ -2176,11 +2207,13 @@ input[type="checkbox"] {
 }
 .agenda-item > div {
   flex: 1;
+  min-width: 0;
 }
 .agenda-line {
   width: 3px;
   border-radius: 9px;
   background: #9c8ce7;
+  flex-shrink: 0;
 }
 .agenda-line.type-tugas {
   background: #efa76a;
@@ -2191,6 +2224,7 @@ input[type="checkbox"] {
 .agenda-item small,
 .agenda-item strong {
   display: block;
+  overflow-wrap: anywhere;
 }
 .agenda-item small {
   font-size: 10px;
@@ -2203,6 +2237,7 @@ input[type="checkbox"] {
 .agenda-item p {
   font-size: 10px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 .calendar-legend {
   display: flex;
@@ -2248,16 +2283,22 @@ input[type="checkbox"] {
 }
 .event-row strong {
   flex: 1;
+  min-width: 0;
   font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .event-row small {
   color: var(--muted);
+  flex-shrink: 0;
 }
 .event-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--primary);
+  flex-shrink: 0;
 }
 /* Academic */
 .academic-hero {
@@ -2509,6 +2550,8 @@ input[type="checkbox"] {
 .preview-list strong {
   font-size: 11px;
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .preview-list small {
   font-size: 10px;
@@ -3089,13 +3132,17 @@ input[type="checkbox"] {
 }
 .notification-row > div {
   flex: 1;
+  min-width: 0;
 }
 .notification-row strong {
   font-size: 11px;
+  display: block;
+  overflow-wrap: anywhere;
 }
 .notification-row p {
   font-size: 10px;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 .notification-row small {
   font-size: 9px;
@@ -3105,6 +3152,8 @@ input[type="checkbox"] {
   background: none;
   border: 0;
   color: var(--primary);
+  align-self: flex-start;
+  flex-shrink: 0;
 }
 .achievements-hero {
   background: #3b386c;
@@ -3566,6 +3615,16 @@ input[type="checkbox"] {
   font-size: 30px;
   margin: 7px 0;
 }
+.auth-box-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 38px;
+}
+.auth-box-head .back-link {
+  margin-bottom: 0;
+}
 .auth-box > p {
   font-size: 12px;
   color: var(--muted);
@@ -3939,9 +3998,13 @@ input[type="checkbox"] {
     background: none;
   }
   .search-trigger span,
-  .search-trigger kbd,
-  .theme-toggle {
+  .search-trigger kbd {
     display: none;
+  }
+  /* Keep the quick theme switch reachable on phones. */
+  .theme-toggle {
+    width: 37px;
+    height: 37px;
   }
   .top-avatar {
     width: 31px;
@@ -4219,6 +4282,9 @@ input[type="checkbox"] {
     margin-bottom: 35px;
   }
   .auth-box .back-link {
+    margin-bottom: 20px;
+  }
+  .auth-box-head {
     margin-bottom: 20px;
   }
   .auth-box h1 {

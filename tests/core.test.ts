@@ -5,6 +5,16 @@ import { authRepository, dataRepository } from "../lib/store";
 import { emptyData, uid, petEmoji } from "../lib/types";
 import { academics, detectConflicts, deadlineStatus } from "../lib/logic";
 import { documentUploadService } from "../lib/documents";
+import {
+  applyTheme,
+  isThemePref,
+  nextThemePref,
+  readThemePref,
+  resolveTheme,
+  themeBootScript,
+  writeThemePref,
+  THEME_STORAGE_KEY,
+} from "../lib/theme";
 class MemoryStorage implements Storage {
   private values = new Map<string, string>();
   get length() {
@@ -175,5 +185,106 @@ test("all nine companions have small local animated GIFs and reduced-motion stil
     );
     assert.equal(readFileSync(`${path}.png`).subarray(1, 4).toString(), "PNG");
     assert.ok(statSync(`${path}.gif`).size < 150_000);
+  }
+});
+
+test("theme preference resolves, persists and cycles light → dark → system", () => {
+  assert.equal(resolveTheme("light", true), "light");
+  assert.equal(resolveTheme("dark", false), "dark");
+  assert.equal(resolveTheme("system", true), "dark");
+  assert.equal(resolveTheme("system", false), "light");
+  assert.equal(nextThemePref("light"), "dark");
+  assert.equal(nextThemePref("dark"), "system");
+  assert.equal(nextThemePref("system"), "light");
+  // Nothing stored yet: fall back to the OS preference.
+  assert.equal(readThemePref(), "system");
+  writeThemePref("dark");
+  assert.equal(readThemePref(), "dark");
+  assert.equal(localStorage.getItem(THEME_STORAGE_KEY), "dark");
+  // A corrupted value must not lock the UI in the wrong theme.
+  localStorage.setItem(THEME_STORAGE_KEY, "neon");
+  assert.equal(readThemePref(), "system");
+  assert.equal(isThemePref("system"), true);
+  assert.equal(isThemePref("neon"), false);
+  localStorage.removeItem(THEME_STORAGE_KEY);
+});
+
+test("applying a theme paints <html> and reports the resolved value", () => {
+  const root = { dataset: {} as Record<string, string> };
+  assert.equal(
+    applyTheme("dark", { root, systemPrefersDark: false }),
+    "dark",
+  );
+  assert.equal(root.dataset.theme, "dark");
+  assert.equal(applyTheme("system", { root, systemPrefersDark: true }), "dark");
+  assert.equal(root.dataset.theme, "dark");
+  assert.equal(
+    applyTheme("system", { root, systemPrefersDark: false }),
+    "light",
+  );
+  assert.equal(root.dataset.theme, "light");
+  // Without an explicit system value it must not throw outside a browser.
+  assert.equal(applyTheme("light", { root }), "light");
+});
+
+test("the pre-paint theme script is wired into the root layout", () => {
+  assert.ok(themeBootScript.includes(THEME_STORAGE_KEY));
+  assert.ok(themeBootScript.includes("dataset.theme"));
+  assert.ok(themeBootScript.includes("prefers-color-scheme: dark"));
+  const layout = readFileSync("app/layout.tsx", "utf8");
+  assert.ok(layout.includes("themeBootScript"));
+  assert.ok(layout.includes("./clay.css"));
+});
+
+test("clay surfaces ship light and dark token sets", () => {
+  const clay = readFileSync("app/clay.css", "utf8");
+  const darkBlock = clay.slice(clay.indexOf(':root[data-theme="dark"]'));
+  for (const token of [
+    "--clay-lift",
+    "--clay-inset",
+    "--tint-violet-bg",
+    "--tint-danger-ink",
+    "--sidebar",
+  ]) {
+    assert.ok(clay.includes(token), `light theme is missing ${token}`);
+    assert.ok(darkBlock.includes(token), `dark theme is missing ${token}`);
+  }
+});
+
+test("every companion GIF is genuinely animated, not a still frame", () => {
+  for (const species of Object.keys(petEmoji)) {
+    const bytes = readFileSync(`public/pets/${species.toLowerCase()}.gif`);
+    let frames = 0;
+    let i = 13;
+    if (bytes[10] & 0x80) i += 3 * (2 << (bytes[10] & 0x07));
+    while (i < bytes.length) {
+      const marker = bytes[i];
+      if (marker === 0x3b) break;
+      if (marker === 0x21) {
+        i += 2;
+        for (;;) {
+          const size = bytes[i++];
+          if (size === 0) break;
+          i += size;
+        }
+      } else if (marker === 0x2c) {
+        frames += 1;
+        const packed = bytes[i + 9];
+        i += 10;
+        if (packed & 0x80) i += 3 * (2 << (packed & 0x07));
+        i += 1;
+        for (;;) {
+          const size = bytes[i++];
+          if (size === 0) break;
+          i += size;
+        }
+      } else {
+        throw new Error(`${species}: unreadable GIF block at ${i}`);
+      }
+    }
+    assert.ok(
+      frames >= 8,
+      `${species} should animate, found ${frames} frame(s)`,
+    );
   }
 });

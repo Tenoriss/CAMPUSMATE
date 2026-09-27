@@ -15,7 +15,7 @@ import {
   Clock3,
 } from "lucide-react";
 import { useApp } from "./Provider";
-import { Button, Field, PetSprite } from "./UI";
+import { Button, Field, PetSprite, ThemeToggle } from "./UI";
 import { Pet, PetSpecies, petEmoji } from "@/lib/types";
 import { universities, provinces } from "@/lib/directory";
 export function LandingPage({ go }: { go: (s: string) => void }) {
@@ -39,6 +39,7 @@ export function LandingPage({ go }: { go: (s: string) => void }) {
             <a href="#privasi">Privasi</a>
           </nav>
           <div className="landing-header-actions">
+            <ThemeToggle />
             <button className="landing-login" onClick={() => go("/login")}>
               Masuk
             </button>
@@ -332,9 +333,12 @@ export function AuthPage({
           </button>
         </div>
         <div className="auth-box">
-          <button className="back-link" onClick={() => go("/")}>
-            <ArrowLeft size={16} /> Kembali ke beranda
-          </button>
+          <div className="auth-box-head">
+            <button className="back-link" onClick={() => go("/")}>
+              <ArrowLeft size={16} /> Kembali ke beranda
+            </button>
+            <ThemeToggle />
+          </div>
           <div className="eyebrow">
             {mode === "signup" ? "MULAI DARI SINI" : "SELAMAT DATANG LAGI"}
           </div>
@@ -551,6 +555,7 @@ export function OnboardingPage({ go }: { go: (s: string) => void }) {
           Menyiapkan ruang kuliahmu{" "}
           <span className="muted">· {step} dari 3</span>
         </span>
+        <ThemeToggle />
       </header>
       <div className="onboard-progress">
         {[1, 2, 3].map((x) => (
