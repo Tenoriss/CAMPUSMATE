@@ -6,6 +6,8 @@ import "@fontsource/inter/700.css";
 import "@fontsource/inter/800.css";
 import "./globals.css";
 import "./writemate.css";
+import "./clay.css";
+import { themeBootScript } from "@/lib/theme";
 export const metadata: Metadata = {
   title: "CAMPUSMATE — Semua urusan kuliah, satu tempat.",
   description:
@@ -18,6 +20,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" suppressHydrationWarning>
+      <head>
+        {/* Applied before the first paint so no theme flash occurs. */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -174,7 +174,7 @@ export function Dashboard({ go }: Go) {
           <span className="hero-star star-one">✦</span>
           <span className="hero-star star-two">✧</span>
           <div className="hero-pet">
-            <PetDisplay pet={d.pet} />
+            <PetDisplay pet={d.pet} priority />
           </div>
           <div className="hero-pet-label">
             {d.pet?.name || "Temanmu"} siap menemani! ✨
@@ -1573,7 +1573,7 @@ export function TasksPage({ go }: Go) {
                     {t.attachment && (
                       <a download={t.attachment.name} href={t.attachment.data}>
                         <Paperclip size={14} />
-                        {t.attachment.name}
+                        <span className="file-name">{t.attachment.name}</span>
                       </a>
                     )}
                   </div>
